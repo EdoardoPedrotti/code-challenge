@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  pricing:
+    build:
+      context : ./pricing
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+    hostname: pricing
+    networks:
+      local:
+        aliases:
+          - pricing
+    image: pricing
+    ports:
+      - 127.0.0.1:5010:5000
+    environment:
+      HOST: mqtt
+      PORT: 1883
+
+  ranking:
+    build:
+      context: ./ranking
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+    hostname: ranking
+    networks:
+      local:
+        aliases:
+          - ranking
+    image: ranking
+    ports:
+      - 127.0.0.1:5020:5000
+    environment:
+      HOST: mqtt
+      PORT: 1883
+  
+  mqtt:
+    image: eclipse-mosquitto    
+    ports:
+      - 2883:1883
+      - 9001:9001
+    hostname: mqtt
+    networks:
+      local:
+        aliases:
+          - mqtt
+
+networks:
+  local:
