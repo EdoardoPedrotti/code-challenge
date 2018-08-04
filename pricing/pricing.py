@@ -13,7 +13,17 @@ def on_message(client, userdata, msg):
 def get_prices():
     url = 'https://api.coinmarketcap.com/v2/ticker/'
     resp = requests.get(url)
+    
     data = resp.json()['data']
+    numCrypto = resp.json()['metadata']['num_cryptocurrencies']
+    currStart = 101
+    while currStart < numCrypto:
+        url = 'https://api.coinmarketcap.com/v2/ticker?start=%s' % (currStart)
+        resp = requests.get(url)
+        newData = resp.json()['data']
+        data.update(newData)
+        currStart += 100
+    print(len(data), numCrypto)
     listing = create_listing(data)
     return listing
 
@@ -38,12 +48,12 @@ while True:
     print("updating prices")
     prices = get_prices()
     for key, value in prices.items():
-        if not key in oldPrices.keys():
-            oldPrices[key] = value
-        elif oldPrices[key] == value:
-            continue
+        # if not key in oldPrices.keys():
+            # oldPrices[key] = value
+        # elif oldPrices[key] == value:
+            # continue
         topic = "pricing/%s" % key
-        client.publish(topic, value)
+        client.publish(topic, value, 0)
     time.sleep(5)
 client.loop_forever()
 

@@ -33,11 +33,16 @@ host = os.getenv('HOST')
 port = int(os.getenv('PORT') ) 
 client.connect(host, port, 60)
 
+oldRanking = dict()
 while True:
     rankings = get_ranking()
     print("publishing ranking")
     for r in  rankings:
+        if not r[0] in oldRanking.keys():
+            oldRanking[r[0]] = r[1]
+        elif oldRanking[r[0]] == r[1]:
+            continue
         topic = 'ranking/%s' % r[0]
-        client.publish(topic, r[1])
+        client.publish(topic, r[1],0)
     time.sleep(5)
 client.loop_forever()

@@ -1,12 +1,32 @@
 version: '3'
 
 services:
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+    hostname: api
+    networks:
+      local:
+        aliases:
+          - api
+    image: api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      HOST: mqtt
+      PORT: 1883
+
   pricing:
     build:
       context : ./pricing
       dockerfile: Dockerfile
     depends_on:
       - mqtt
+      - api-gateway
     hostname: pricing
     networks:
       local:
@@ -25,6 +45,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mqtt
+      - api-gateway
     hostname: ranking
     networks:
       local:
